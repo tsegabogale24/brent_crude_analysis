@@ -1,18 +1,18 @@
-from statsmodels.tsa.seasonal import seasonal_decompose
-from statsmodels.tsa.stattools import adfuller
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import seaborn as sns
+from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.tsa.stattools import adfuller
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
-import scipy.stats as stats
-
 
 def load_brent_data(filepath: str) -> pd.DataFrame:
-    df = pd.read_csv(filepath, parse_dates=['Date'])
-    df.set_index('Date', inplace=True)
-    df = df.sort_index()
+    df = pd.read_csv(filepath, parse_dates=["Date"])
+    df["Date"] = pd.to_datetime(df["Date"], format="%d-%b-%y")
+    df.sort_values("Date", inplace=True)
+    df.set_index("Date", inplace=True)
     return df
+
 
 def plot_time_series(df: pd.DataFrame, column: str = 'Price') -> None:
     plt.figure(figsize=(12, 6))
@@ -77,10 +77,8 @@ def plot_volatility(df: pd.DataFrame, column: str = 'volatility') -> None:
     plt.legend()
     plt.grid(True)
     plt.show()
+
 def plot_return_distribution(df: pd.DataFrame, column: str = 'log_return') -> None:
-    """
-    Plots the histogram of log returns with KDE.
-    """
     plt.figure(figsize=(10, 5))
     sns.histplot(df[column].dropna(), bins=50, kde=True)
     plt.title("Distribution of Log Returns")
@@ -89,9 +87,6 @@ def plot_return_distribution(df: pd.DataFrame, column: str = 'log_return') -> No
     plt.show()
 
 def plot_autocorrelation(df: pd.DataFrame, column: str = 'log_return', lags: int = 40):
-    """
-    Plots the ACF and PACF of the log returns.
-    """
     fig, ax = plt.subplots(2, 1, figsize=(12, 8))
     plot_acf(df[column].dropna(), ax=ax[0], lags=lags)
     plot_pacf(df[column].dropna(), ax=ax[1], lags=lags)
@@ -99,4 +94,3 @@ def plot_autocorrelation(df: pd.DataFrame, column: str = 'log_return', lags: int
     ax[1].set_title("Partial Autocorrelation of Log Returns")
     plt.tight_layout()
     plt.show()
-   
